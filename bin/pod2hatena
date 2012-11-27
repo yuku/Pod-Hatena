@@ -1,0 +1,59 @@
+#!/usr/bin/env perl
+use 5.008;
+use strict;
+use warnings;
+# PODNAME: pod2hatena
+# ABSTRACT: Convert POD text to Hatena
+
+use Pod::Hatena;
+
+my $in_fh  = get_handle(shift(@ARGV), '<', \*STDIN);
+my $out_fh = get_handle(shift(@ARGV), '>', \*STDOUT);
+
+convert($in_fh, $out_fh);
+
+sub convert {
+    my ($in_file, $out_file) = @_;
+    my $parser = Pod::Hatena->new;
+    $parser->parse_from_filehandle($in_file);
+    print $out_file $parser->as_hatena;
+}
+
+sub get_handle {
+  my ($path, $op, $default) = @_;
+  (!defined($path) || $path eq '-') ? $default : do {
+    open(my $fh, $op, $path)
+      or die "Failed to open '$path': $!\n";
+    $fh;
+  };
+}
+
+__END__
+
+=head1 SYNOPSIS
+
+    # parse STDIN, print to STDOUT
+    $ pod2hatena < POD_File > hatena_File
+
+    # parse file, print to STDOUT
+    $ pod2hatena input.pod
+
+    # parse file, print to file
+    $ pod2hatena input.pod output.mkdn
+
+    # parse STDIN, print to file
+    $ pod2hatena - output.mkdn
+
+=head1 DESCRIPTION
+
+This program uses L<Pod::hatena> to convert POD into hatena sources.
+
+It accepts two optional arguments:
+
+=for :list
+* input pod file (defaults to C<STDIN>)
+* output hatena file (defaults to C<STDOUT>)
+
+=head1 SEE ALSO
+
+This program is strongly based on C<pod2mdwn> from L<Module::Build::IkiWiki>.
