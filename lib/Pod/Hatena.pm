@@ -77,6 +77,8 @@ sub _escape {
     my $self = shift;
     local $_ = shift;
 
+    return $_ if $self->_private->{format} eq 'text';
+
     # escape unordered lists and blockquotes
     s/^([-+*|])/\\$1/mg;
 
@@ -154,14 +156,12 @@ sub command {
 
         $data->{format} = $1;
         push @{$data->{sstack}}, $data->{searching};
-        $parser->_save('>|') if $1 eq 'text';
 
     # closing a format ?
     } elsif ($command =~ m{end}ms && $paragraph =~ /^(html|text)/) {
 
         $data->{format} = '' if $data->{format} eq $1;
         $data->{searching} = pop @{$data->{sstack}};
-        $parser->_save('|<') if $1 eq 'text';
 
     }
 
@@ -260,6 +260,9 @@ sub interior_sequence {
     # nested links are not allowed
     return sprintf '%s<%s>', $seq_command, $seq_argument
         if $seq_command eq 'L' && $self->_private->{InsideLink};
+
+    return sprintf '%s<%s>', $seq_command, $seq_argument
+        if $self->_private->{format} eq 'text';
 
     my $i = 2;
     my %interiors = (
@@ -374,3 +377,18 @@ Currently C<text> C<html> are available.
 <b>In HTML block, E<lt> and E<gt> will not be escaped.</b>
 
 =end html
+
+=head3 text
+
+=begin text
+
+Feel free to write any Hatena sentences.
+
+|* hello |
+|table|
+
+>|perl|
+use Pod::Hatena;
+||<
+
+=end text
