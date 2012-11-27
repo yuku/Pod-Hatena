@@ -14,7 +14,7 @@ This module subclasses L<Pod::Parser> and converts POD to Hatena.
 This module is strongly inspired by L<Pod::Markdown>.
 
 Literal characters in Pod that are special in Hatena are backslash-escaped
-(except those in verbatim blocks or C&lt;code&gt; sections).
+(except those in verbatim blocks or C<html> sections).
 
 =head1 LICENSE
 
